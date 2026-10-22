@@ -1,0 +1,59 @@
+name: Build and publish Windows release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Fetch and verify latest upstream engines
+        run: npm run engine
+
+      - name: Build installer
+        run: npm run build
+
+      - name: Create SHA-256 checksum
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem "src-tauri/target/release/bundle/nsis" -Filter "*_x64-setup.exe" | Select-Object -First 1
+          if (-not $installer) { throw "The NSIS installer was not produced" }
+          $hash = (Get-FileHash -LiteralPath $installer.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $($installer.Name)" | Set-Content -LiteralPath "src-tauri/target/release/bundle/nsis/SHA256SUMS.txt" -Encoding ascii
+          @"
+          ## SHA-256
+
+          ``$($installer.Name)``: ``$hash``
+
+          The same checksum is attached as ``SHA256SUMS.txt``.
+          "@ | Set-Content -LiteralPath "src-tauri/target/release/bundle/nsis/release-notes.md" -Encoding utf8
+
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: src-tauri/target/release/bundle/nsis/release-notes.md
+          files: |
+            src-tauri/target/release/bundle/nsis/*_x64-setup.exe
+            src-tauri/target/release/bundle/nsis/SHA256SUMS.txt

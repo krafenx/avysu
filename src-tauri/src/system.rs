@@ -33,9 +33,15 @@ fn run(program: &str, args: &[&str]) -> std::io::Result<Output> {
 }
 
 fn powershell(script: &str) -> Result<String> {
-    let out = run("powershell", &["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", script])?;
+    // PowerShell 5.1 otherwise writes localized diagnostics in the active OEM
+    // code page, which Rust would display as mojibake in the UI.
+    let wrapped = format!(
+        "$utf8 = New-Object System.Text.UTF8Encoding $false; [Console]::OutputEncoding = $utf8; $OutputEncoding = $utf8; $ErrorActionPreference = 'Stop'; try {{ {script} }} catch {{ [Console]::Error.WriteLine($_.Exception.Message); exit 1 }}"
+    );
+    let out = run("powershell", &["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", &wrapped])?;
     if !out.status.success() {
-        bail!("{}", String::from_utf8_lossy(&out.stderr).trim());
+        let detail = String::from_utf8_lossy(&out.stderr).trim().to_string();
+        bail!("{}", if detail.is_empty() { "PowerShell завершился с ошибкой" } else { &detail });
     }
     Ok(String::from_utf8_lossy(&out.stdout).trim().to_string())
 }
@@ -140,8 +146,10 @@ pub fn add_defender_exclusion(paths: &[&Path]) -> Result<()> {
         .iter()
         .map(|p| format!("'{}'", p.display().to_string().replace('\'', "''")))
         .collect::<Vec<_>>()
-        .join(",");
-    powershell(&format!("Add-MpPreference -ExclusionPath {list}"))?;
+        .join(", ");
+    powershell(&format!(
+        "$paths = @({list}); if (-not (Get-Command Add-MpPreference -ErrorAction SilentlyContinue)) {{ throw 'Командлет Microsoft Defender недоступен. Возможно, Defender отключён или управляется другим антивирусом.' }}; $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent()); if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {{ throw 'Для добавления исключения нужны права администратора. Перезапустите Avysu от имени администратора и повторите.' }}; Add-MpPreference -ExclusionPath $paths"
+    ))?;
     Ok(())
 }
 
