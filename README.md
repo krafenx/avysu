@@ -48,7 +48,7 @@ Avysu — оболочка на Rust над проверенными движк�
 
 ## Сборка из исходников
 
-Нужны: Windows 10/11 x64, Rust stable с MSVC toolchain и Node.js 22. Установщик собирается на GitHub Actions для каждого тега `v*`; workflow загружает и проверяет SHA-256 официальные движки, собирает NSIS-установщик и публикует его вместе с SHA-256. Для выпуска обновите номер версии в `package.json`, `src-tauri/tauri.conf.json` и `src-tauri/Cargo.toml`, затем отправьте тег этой версии, например `v0.1.1`.
+Нужны: Windows 10/11 x64, Rust stable с MSVC toolchain и Node.js 22. Установщик собирается на GitHub Actions после публикации GitHub Release; workflow загружает и проверяет SHA-256 официальные движки, собирает NSIS-установщик и добавляет его с SHA-256 в релиз. Для выпуска обновите номер версии в `package.json`, `src-tauri/tauri.conf.json` и `src-tauri/Cargo.toml`, затем создайте и опубликуйте GitHub Release с тегом этой версии, например `v0.1.1`. Уже опубликованный релиз можно собрать вручную через Actions, указав его тег.
 
 ```powershell
 npm ci

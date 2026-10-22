@@ -1,9 +1,15 @@
 name: Build and publish Windows release
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published, edited]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing release tag to build, e.g. v0.1.0"
+        required: true
+        type: string
+        default: v0.1.0
 
 permissions:
   contents: write
@@ -13,10 +19,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.release_tag || github.ref }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -51,9 +59,11 @@ jobs:
           "@ | Set-Content -LiteralPath "src-tauri/target/release/bundle/nsis/release-notes.md" -Encoding utf8
 
       - name: Publish release assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
+          tag_name: ${{ github.event.release.tag_name || inputs.release_tag || github.ref_name }}
           body_path: src-tauri/target/release/bundle/nsis/release-notes.md
+          append_body: true
           files: |
             src-tauri/target/release/bundle/nsis/*_x64-setup.exe
             src-tauri/target/release/bundle/nsis/SHA256SUMS.txt
