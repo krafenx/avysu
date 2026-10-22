@@ -39,17 +39,19 @@ Avysu — оболочка на Rust над проверенными движк�
 
 ## Установка
 
-Скачайте `Avysu_x64-setup.exe` из [релизов](../../releases) и запустите.
+Скачайте установщик `Avysu_*_x64-setup.exe` из [последнего релиза](https://github.com/krafenx/avysu/releases) и запустите. Рядом с установщиком опубликован `SHA256SUMS.txt` для проверки контрольной суммы SHA-256.
+
+В PowerShell хэш можно сверить командой `Get-FileHash .\Avysu_*_x64-setup.exe -Algorithm SHA256`.
 
 > Microsoft Defender считает движок winws «HackTool» — это ложное срабатывание, так помечают
 > все инструменты обхода DPI. Avysu при первом запуске предложит добавить исключение.
 
 ## Сборка из исходников
 
-Нужны: Rust (stable, MSVC), Node.js 18+, Windows 10/11.
+Нужны: Windows 10/11 x64, Rust stable с MSVC toolchain и Node.js 22. Установщик собирается на GitHub Actions для каждого тега `v*`; workflow загружает и проверяет SHA-256 официальные движки, собирает NSIS-установщик и публикует его вместе с SHA-256. Для выпуска обновите номер версии в `package.json`, `src-tauri/tauri.conf.json` и `src-tauri/Cargo.toml`, затем отправьте тег этой версии, например `v0.1.1`.
 
 ```powershell
-npm install
+npm ci
 npm run engine      # загрузить последние официальные релизы и проверить SHA-256
 npm run build       # установщик: src-tauri/target/release/bundle/nsis/
 ```
@@ -60,7 +62,7 @@ npm run build       # установщик: src-tauri/target/release/bundle/nsis
 
 ## Ссылки
 
-[Исходный код на GitHub](https://github.com/krafen/avysu) · [Telegram](https://t.me/avysu)
+[Исходный код на GitHub](https://github.com/krafenx/avysu) · [Telegram](https://t.me/avysu)
 
 Тесты (включая прогон **всех** стратегий через `winws --dry-run`):
 
