@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Avysu</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="home">
+
+  <header class="titlebar" data-tauri-drag-region>
+    <div class="brand" data-tauri-drag-region>
+      <svg class="mark brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19 12 5l8 14M7.2 13.5h9.6"/></svg>
+      <span class="brand-name" data-tauri-drag-region>Avysu</span>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab on" data-page="home">Главная</button>
+      <button class="tab" data-page="strategies">Стратегии</button>
+      <button class="tab" data-page="lists">Списки</button>
+      <button class="tab" data-page="log">Журнал</button>
+      <button class="tab" data-page="settings">Настройки</button>
+    </nav>
+    <div class="win-buttons">
+      <button class="win-btn" id="win-min" title="Свернуть" aria-label="Свернуть">
+        <svg viewBox="0 0 12 12"><path d="M2 6h8" /></svg>
+      </button>
+      <button class="win-btn close" id="win-close" title="Закрыть" aria-label="Закрыть">
+        <svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" /></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- ───────────── Главная ───────────── -->
+    <section class="page home active" id="page-home">
+      <div class="banners" id="banners"></div>
+
+      <div class="stage">
+        <div class="eyebrow" id="eyebrow">Обход блокировок</div>
+        <h1 class="status-word" id="hero-title">Выключено</h1>
+        <p class="status-line" id="hero-sub">Управление подключением</p>
+
+        <button class="cta" id="power">
+          <span class="cta-ring"></span>
+          <svg viewBox="0 0 24 24"><path d="M12 3.5v8" /><path d="M6.6 7.2a7.5 7.5 0 1 0 10.8 0" /></svg>
+          <span id="cta-text">Включить</span>
+        </button>
+
+        <div class="scan" id="progress" hidden>
+          <div class="scan-track"><span id="progress-fill"></span></div>
+          <div class="scan-text" id="progress-text"></div>
+        </div>
+
+        <div class="quick" id="quick">
+          <button class="link" id="btn-check">
+            <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7" /><path d="M20 4v5h-5" /></svg>Проверить
+          </button>
+          <button class="link" id="btn-reselect">
+            <svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.6.8-4 3.9.9 5.5L12 15.6 7.1 18.2 8 12.7 4 8.8 9.6 8z" /></svg>Подобрать заново
+          </button>
+          <button class="link danger" id="btn-cancel" hidden>Остановить подбор</button>
+        </div>
+      </div>
+
+      <section class="service-board" aria-labelledby="service-heading">
+        <div class="service-head">
+          <div><div class="eyebrow">Проверка соединения</div><h2 id="service-heading">Сервисы</h2></div>
+          <span class="service-caption">Статус по последней проверке</span>
+        </div>
+        <div class="dock" id="services"></div>
+      </section>
+    </section>
+
+    <!-- ───────────── Стратегии ───────────── -->
+    <section class="page" id="page-strategies">
+      <div class="page-head">
+        <div>
+          <h2>Стратегии</h2>
+          <p class="sub">Avysu сам выбирает подходящую. Здесь — результаты проверок и ручной выбор.</p>
+          <div class="stats" id="strat-stats"></div>
+        </div>
+        <button class="btn primary" id="btn-auto">
+          <svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.6.8-4 3.9.9 5.5L12 15.6 7.1 18.2 8 12.7 4 8.8 9.6 8z" /></svg>Автоподбор
+        </button>
+      </div>
+      <div class="seg" id="strategy-filter">
+        <button data-f="all" class="on">Все</button>
+        <button data-f="z2">zapret2</button>
+        <button data-f="z1">Flowseal</button>
+        <button data-f="ok">Рабочие</button>
+      </div>
+      <div class="strategy-list" id="strategy-list"></div>
+    </section>
+
+    <!-- ───────────── Списки ───────────── -->
+    <section class="page" id="page-lists">
+      <div class="page-head">
+        <div>
+          <h2>Списки</h2>
+          <p class="sub">Свои домены и исключения — по одному на строку, поддомены учитываются сами.</p>
+        </div>
+      </div>
+      <div class="seg" id="list-tabs">
+        <button data-list="list-general-user.txt" class="on">Обходить</button>
+        <button data-list="list-exclude-user.txt">Не трогать</button>
+        <button data-list="ipset-exclude-user.txt">Исключить IP</button>
+      </div>
+      <div class="glass editor">
+        <div class="editor-body">
+          <div class="gutter" id="list-gutter" aria-hidden="true"></div>
+          <textarea id="list-editor" spellcheck="false"></textarea>
+        </div>
+        <div class="editor-foot">
+          <span class="hint" id="list-help"></span>
+          <span class="count" id="list-count"></span>
+          <span class="saved" id="list-saved"></span>
+          <button class="btn primary small" id="btn-save-list">Сохранить<kbd>Ctrl S</kbd></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── Журнал ───────────── -->
+    <section class="page" id="page-log">
+      <div class="page-head">
+        <div>
+          <h2>Журнал</h2>
+          <p class="sub">Что делает Avysu и что отвечает движок.</p>
+        </div>
+        <button class="btn" id="btn-copy-log">
+          <svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="3" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></svg>Скопировать
+        </button>
+      </div>
+      <div class="seg" id="log-filter">
+        <button data-f="all" class="on">Всё</button>
+        <button data-f="app">События</button>
+        <button data-f="bad">Ошибки</button>
+      </div>
+      <div class="glass log" id="log" data-f="all"></div>
+    </section>
+
+    <!-- ───────────── Настройки ───────────── -->
+    <section class="page" id="page-settings">
+      <div class="page-head"><div><h2>Настройки</h2></div></div>
+
+      <div class="glass card">
+        <h3><span class="h3-ic"><svg viewBox="0 0 24 24"><path d="M12 3.5v8" /><path d="M6.6 7.2a7.5 7.5 0 1 0 10.8 0" /></svg></span>Работа</h3>
+        <label class="toggle"><span><b>Включать при запуске</b><small>Обход стартует, как только открылось приложение</small></span><input type="checkbox" data-key="enable_on_launch" /><i></i></label>
+        <label class="toggle"><span><b>Запускать вместе с Windows</b><small>Тихо, в трее, без запроса прав</small></span><input type="checkbox" data-key="autostart" /><i></i></label>
+        <label class="toggle"><span><b>Сторож</b><small>Сам меняет стратегию, если провайдер что-то поменял</small></span><input type="checkbox" data-key="watchdog" /><i></i></label>
+        <label class="toggle"><span><b>Быстрый подбор</b><small>Остановиться на первой стратегии, прошедшей все проверки</small></span><input type="checkbox" data-key="fast_select" /><i></i></label>
+        <label class="toggle"><span><b>Сворачивать в трей</b><small>Крестик прячет окно, обход продолжает работать</small></span><input type="checkbox" data-key="close_to_tray" /><i></i></label>
+      </div>
+
+      <div class="glass card">
+        <h3><span class="h3-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg></span>Расписание</h3>
+        <label class="toggle"><span><b>Подбирать стратегию каждый день</b><small>Проверит все стратегии и переключится, только если найдёт лучше. Обход на пару минут прервётся — поэтому лучше ночью</small></span><input type="checkbox" data-key="schedule" /><i></i></label>
+        <div class="field sched" id="sched-time-row">
+          <span><b>Время</b><small>Если компьютер спал — подбор пройдёт после пробуждения, в течение 6 часов</small></span>
+          <input type="time" class="time" data-key="schedule_time" required />
+        </div>
+        <label class="toggle sched"><span><b>Заодно обновлять движки</b><small>Свежие версии zapret2, Flowseal и WinDivert перед подбором</small></span><input type="checkbox" data-key="schedule_update" /><i></i></label>
+      </div>
+
+      <div class="glass card">
+        <h3><span class="h3-ic"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" /></svg></span>Фильтры</h3>
+        <div class="field">
+          <span><b>Игровой фильтр</b><small>Игры на нестандартных портах · стратегии Flowseal</small></span>
+          <div class="seg" data-key="game_filter">
+            <button data-v="off">Выкл</button><button data-v="tcp">TCP</button><button data-v="udp">UDP</button><button data-v="all">Всё</button>
+          </div>
+        </div>
+        <div class="field">
+          <span><b>База IP-адресов</b><small>Для сервисов за Cloudflare и игровых серверов</small></span>
+          <div class="seg" data-key="ipset">
+            <button data-v="none">Нет</button><button data-v="loaded">Загружена</button><button data-v="any">Все IP</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass card">
+        <h3><span class="h3-ic"><svg viewBox="0 0 24 24"><path d="M12 3l2 5.5L19.5 10.5 14 12.5 12 18l-2-5.5L4.5 10.5 10 8.5z" /><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z" /></svg></span>ИИ-сервисы</h3>
+        <label class="toggle"><span><b>Разблокировать Gemini, ChatGPT, Claude</b><small>А также AI Studio, NotebookLM, Grok и Copilot. Эти сервисы сами не пускают пользователей из России — здесь нужен не обход DPI, а зарубежный адрес</small></span><input type="checkbox" data-key="ai_unlock" /><i></i></label>
+        <div class="field">
+          <span><b>Умный DNS</b><small>Только эти домены идут через зарубежный прокси. Переписка зашифрована — прокси видит лишь имя сайта</small></span>
+          <div class="seg" data-key="ai_provider">
+            <button data-v="auto">Авто</button><button data-v="comss">Comss</button><button data-v="geohide">GeoHide</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass card">
+        <h3><span class="h3-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor" /></svg></span>Оформление</h3>
+        <div class="field">
+          <span><b>Тема</b><small>По умолчанию — как в Windows</small></span>
+          <div class="seg" data-key="theme">
+            <button data-v="system">Системная</button><button data-v="light">Светлая</button><button data-v="dark">Тёмная</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass card">
+        <h3><span class="h3-ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" /><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" /></svg></span>Движки</h3>
+        <div class="field">
+          <span><b>Версии</b><small id="engine-versions">—</small></span>
+          <div class="row">
+            <button class="btn" id="btn-check-upd">Проверить</button>
+            <button class="btn primary" id="btn-update">Обновить</button>
+          </div>
+        </div>
+        <div class="field">
+          <span><b>Microsoft Defender</b><small id="defender-text">Проверяю…</small></span>
+          <button class="btn" id="btn-defender">Добавить исключение</button>
+        </div>
+        <div class="field">
+          <span><b>Папка данных</b><small id="data-dir">—</small></span>
+          <button class="btn" id="btn-open-dir">Открыть</button>
+        </div>
+      </div>
+
+      <div class="glass card about">
+        <div class="about-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18V6l14 12V6"/></svg></div>
+        <div>
+          <b>Avysu <span id="app-version"></span></b>
+          <p class="sub">Открытая оболочка над
+            <a href="#" data-url="https://github.com/bol-van/zapret2">zapret2</a> и
+            <a href="#" data-url="https://github.com/bol-van/zapret">zapret</a> от bol-van,
+            стратегии <a href="#" data-url="https://github.com/Flowseal/zapret-discord-youtube">Flowseal</a>,
+            драйвер <a href="#" data-url="https://github.com/basil00/WinDivert">WinDivert</a>.
+            Трафик никуда не уходит — всё работает на вашем компьютере.</p>
+          <p class="sub about-links"><a href="#" data-url="https://github.com/krafen/avysu">GitHub проекта</a><span> · </span><a href="#" data-url="https://t.me/avysu">Telegram</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ───────────── Приветствие ───────────── -->
+  <div class="onb" id="onb" hidden>
+    <div class="onb-stage">
+      <section class="onb-step" data-step="0">
+        <div class="onb-kicker">Знакомьтесь</div>
+        <h1 class="onb-title">Avysu</h1>
+        <p class="onb-lead">Управление сетевыми стратегиями для Windows. YouTube, Discord и&nbsp;остальное снова работают — без VPN, серверов и&nbsp;подписок.</p>
+        <button class="btn primary big" data-next>Начать
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </button>
+      </section>
+
+      <section class="onb-step" data-step="1">
+        <div class="onb-kicker">Как это работает</div>
+        <h2 class="onb-h">Три простые вещи</h2>
+        <div class="feats">
+          <div class="glass feat">
+            <span class="feat-n">01</span>
+            <div><b>Всё на вашем компьютере</b><span>Трафик никуда не уходит. Avysu меняет обработку пакетов локально, чтобы фильтр провайдера их не распознал.</span></div>
+          </div>
+          <div class="glass feat">
+            <span class="feat-n">02</span>
+            <div><b>Сам подбирает настройки</b><span>Проверит доступные стратегии zapret и выберет подходящую для вашего подключения.</span></div>
+          </div>
+          <div class="glass feat">
+            <span class="feat-n">03</span>
+            <div><b>Следит за работой</b><span>Провайдер что-то поменял — Avysu заметит и перестроится сам. Живёт в трее и не мешает.</span></div>
+          </div>
+        </div>
+        <div class="onb-nav">
+          <button class="btn" data-prev>Назад</button>
+          <button class="btn primary" data-next>Дальше</button>
+        </div>
+      </section>
+
+      <section class="onb-step" data-step="2">
+        <div class="onb-kicker">Подготовка</div>
+        <h2 class="onb-h">Пара мелочей</h2>
+        <div class="checks">
+          <div class="glass check" id="onb-defender">
+            <div class="check-icon"></div>
+            <div class="check-text"><b>Microsoft Defender</b><span>Проверяю…</span></div>
+            <button class="btn small" hidden>Добавить исключение</button>
+          </div>
+          <div class="glass check" id="onb-conflicts">
+            <div class="check-icon"></div>
+            <div class="check-text"><b>Другие обходы</b><span>Проверяю…</span></div>
+            <button class="btn small" hidden>Остановить</button>
+          </div>
+          <label class="glass check">
+            <div class="check-icon ok"></div>
+            <div class="check-text"><b>Запускать вместе с Windows</b><span>Тихо, в трее, без запроса прав</span></div>
+            <span class="toggle bare"><input type="checkbox" id="onb-autostart" checked /><i></i></span>
+          </label>
+        </div>
+        <div class="onb-nav">
+          <button class="btn" data-prev>Назад</button>
+          <button class="btn primary" id="onb-go">Продолжить
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </button>
+        </div>
+      </section>
+
+      <section class="onb-step final" data-step="3">
+        <div class="onb-kicker" id="onb-kicker">Подбор стратегии</div>
+        <h2 class="onb-h big" id="onb-title">Проверяю доступность…</h2>
+        <p class="onb-lead small" id="onb-sub">Смотрю, что заблокировано у вашего провайдера</p>
+        <div class="scan" id="onb-progress">
+          <div class="scan-track"><span id="onb-fill"></span></div>
+          <div class="scan-text" id="onb-ptext"></div>
+        </div>
+        <div class="chips" id="onb-chips"></div>
+        <div class="onb-nav">
+          <button class="btn" id="onb-skip">Пропустить</button>
+          <button class="btn primary big" id="onb-done" hidden>Готово
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </button>
+          <button class="btn primary" id="onb-retry" hidden>Попробовать снова</button>
+        </div>
+      </section>
+    </div>
+    <div class="onb-dots" id="onb-dots"><i></i><i></i><i></i><i></i></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
